@@ -240,17 +240,23 @@ impl JsonBody {
         self.inner.extend_from_slice(b"\":");
     }
 
-    fn push_value(&mut self, value: &[u8]) {
-        self.inner.push(b'\"');
+    fn push_value(&mut self, value: &[u8], is_primitive: bool) {
+        if !is_primitive {
+            self.inner.push(b'\"');
+        }
+
         self.inner.extend_from_slice(value);
-        self.inner.push(b'\"');
+
+        if !is_primitive {
+            self.inner.push(b'\"');
+        }
     }
 
     pub(crate) fn push_str(&mut self, key: &str, value: &str) {
         self.inner.reserve(4 + key.len() + 2 + value.len());
 
         self.push_key(key.as_bytes());
-        self.push_value(value.as_bytes());
+        self.push_value(value.as_bytes(), false);
     }
 
     pub(crate) fn push_int(&mut self, key: &str, int: impl Integer) {
@@ -260,7 +266,7 @@ impl JsonBody {
         self.inner.reserve(4 + key.len() + int.len());
 
         self.push_key(key.as_bytes());
-        self.push_value(int.as_bytes());
+        self.push_value(int.as_bytes(), true);
     }
 
     pub(crate) fn into_bytes(mut self) -> Vec<u8> {
