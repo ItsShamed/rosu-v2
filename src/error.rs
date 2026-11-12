@@ -168,6 +168,9 @@ pub enum ParsingError {
     /// Failed to parse a str into an [`Acronym`](crate::model::mods::Acronym)
     #[error("failed to parse `{}` into an Acronym", .0)]
     Acronym(Box<str>),
+    /// Failed to parse a str into a [`ChannelType`](crate::model::chat::ChannelType)
+    #[error("failed to parse `{}` into a chat type", .0)]
+    ChannelType(Box<str>),
     /// Failed to parse a u8 into a [`Genre`](crate::model::beatmap::Genre)
     #[error("failed to parse {} into Genre", .0)]
     Genre(u8),
@@ -180,6 +183,9 @@ pub enum ParsingError {
     /// Failed to parse a u8 into a [`MatchTeam`](crate::model::matches::MatchTeam)
     #[error("failed to parse {} into MatchTeam", .0)]
     MatchTeam(u8),
+    /// Failed to parse a str into a [`MessageType`](crate::model::chat::MessageType)
+    #[error("failed to parse `{}` into a message type", .0)]
+    MessageType(Box<str>),
     /// Failed to parse an i8 into a [`RankStatus`](crate::model::beatmap::RankStatus)
     #[error("failed to parse {} into RankStatus", .0)]
     RankStatus(i8),

@@ -138,6 +138,9 @@ mod serde_util;
 /// Beatmap(set) related types
 pub mod beatmap;
 
+/// Chat related types
+pub mod chat;
+
 /// Comment related types
 pub mod comments;
 
@@ -208,6 +211,10 @@ pub(crate) trait ContainedUsers {
         allow(dead_code, reason = "its only used to put all users in the cache")
     )]
     fn apply_to_users(&self, f: impl CacheUserFn);
+}
+
+impl ContainedUsers for () {
+    fn apply_to_users(&self, _: impl CacheUserFn) {}
 }
 
 impl<T: ContainedUsers> ContainedUsers for Box<T> {
