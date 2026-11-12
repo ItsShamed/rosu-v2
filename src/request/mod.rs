@@ -269,6 +269,23 @@ impl JsonBody {
         self.push_value(int.as_bytes(), true);
     }
 
+    pub(crate) fn push_bool(&mut self, key: &str, boolean: bool) {
+        self.inner.reserve(4 + key.len() + 4 + (boolean as usize));
+
+        self.push_key(key.as_bytes());
+        self.push_value(
+            {
+                if boolean {
+                    "true"
+                } else {
+                    "false"
+                }
+            }
+            .as_bytes(),
+            true,
+        );
+    }
+
     pub(crate) fn into_bytes(mut self) -> Vec<u8> {
         if !self.inner.is_empty() {
             self.inner.push(b'}');
