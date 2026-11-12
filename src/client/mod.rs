@@ -215,6 +215,92 @@ impl Osu {
         GetChangelogListing::new(self)
     }
 
+    /// Get the details of a channel in the form of a
+    /// [`ChannelDetails`](crate::model::chat::ChannelDetails).
+    ///
+    /// Note that the client has to be initialized with the
+    /// [`ChatRead`](crate::prelude::Scopes::ChatRead) scope through
+    /// the OAuth process in order for this endpoint to not return an error.
+    ///
+    /// See [`OsuBuilder::with_authorization`](crate::OsuBuilder::with_authorization).
+    #[inline]
+    pub const fn channel(&self, channel_id: u64) -> GetChannel<'_> {
+        GetChannel::new(self, channel_id)
+    }
+
+    /// Get a list of all joinable public
+    /// [`ChatChannel`](crate::model::chat::ChatChannel)s.
+    ///
+    /// Note that the client has to be initialized with the
+    /// [`ChatRead`](crate::prelude::Scopes::ChatRead) scope through
+    /// the OAuth process in order for this endpoint to not return an error.
+    ///
+    /// See [`OsuBuilder::with_authorization`](crate::OsuBuilder::with_authorization).
+    #[inline]
+    pub const fn channels(&self) -> GetChannelList<'_> {
+        GetChannelList::new(self)
+    }
+
+    /// Join a public or multiplayer
+    /// [`ChatChannel`](crate::model::chat::ChatChannel) and return it.
+    ///
+    /// This is the equivalent of `/join` on IRC and in-game. The `user_id`, and
+    /// the calling user must own the client.
+    ///
+    /// Note that the client has to be initialized with the
+    /// [`ChatWriteManage`](crate::prelude::Scopes::ChatWriteManage) scope through
+    /// the OAuth process in order for this endpoint to not return an error.
+    ///
+    /// See [`OsuBuilder::with_authorization`](crate::OsuBuilder::with_authorization).
+    #[inline]
+    pub const fn channel_join(&self, channel_id: u64, user_id: u32) -> JoinChannel<'_> {
+        JoinChannel::new(self, channel_id, user_id)
+    }
+
+    /// Leave a public channel.
+    ///
+    /// Note that the client has to be initialized with the
+    /// [`ChatWriteManage`](crate::prelude::Scopes::ChatWriteManage) scope through
+    /// the OAuth process in order for this endpoint to not return an error.
+    ///
+    /// See [`OsuBuilder::with_authorization`](crate::OsuBuilder::with_authorization).
+    #[inline]
+    pub const fn channel_leave(&self, channel_id: u64, user_id: u32) -> LeaveChannel<'_> {
+        LeaveChannel::new(self, channel_id, user_id)
+    }
+
+    /// Mark a channel as being read up to a given `message_id`.
+    ///
+    /// Note that the client has to be initialized with the
+    /// [`ChatRead`](crate::prelude::Scopes::ChatRead) scope through
+    /// the OAuth process in order for this endpoint to not return an error.
+    ///
+    /// See [`OsuBuilder::with_authorization`](crate::OsuBuilder::with_authorization).
+    #[inline]
+    pub const fn channel_mark_as_read(
+        &self,
+        channel_id: u64,
+        message_id: u64,
+    ) -> MarkChannelAsRead<'_> {
+        MarkChannelAsRead::new(self, channel_id, message_id)
+    }
+
+    /// Get a the list of [`ChatMessage`](crate::model::chat::ChatMessage)s for
+    /// a specific channel.
+    ///
+    /// This is typically used to batch prefetch messages for a channel before
+    /// actively listening for them via WebSocket afterwards.
+    ///
+    /// Note that the client has to be initialized with the
+    /// [`ChatRead`](crate::prelude::Scopes::ChatRead) scope through the OAuth
+    /// process in order for this endpoint to not return an error.
+    ///
+    /// See [`OsuBuilder::with_authorization`](crate::OsuBuilder::with_authorization).
+    #[inline]
+    pub const fn channel_messages(&self, channel_id: u64) -> GetChannelMessages<'_> {
+        GetChannelMessages::new(self, channel_id)
+    }
+
     /// Get a [`ChartRankings`](crate::model::ranking::ChartRankings) struct
     /// containing a [`Spotlight`](crate::model::ranking::Spotlight), its
     /// [`BeatmapsetExtended`](crate::model::beatmap::BeatmapsetExtended)s, and participating
@@ -239,6 +325,48 @@ impl Osu {
         GetCountryRankings::new(self, mode)
     }
 
+    /// Create a [`ChatChannel`](crate::model::chat::ChatChannel).
+    ///
+    /// This function is currently limited to creating `PM` channels only (with
+    /// the option of not sending a mandatory message, the user being
+    /// `target_id`), as `ANNOUNCE` channels can only be created by moderators
+    /// and chat announcers.
+    ///
+    /// Note that the client has to be initialized with the
+    /// [`ChatWriteManage`](crate::prelude::Scopes::ChatWriteManage) scope
+    /// through the OAuth process in order for this endpoint to not return an
+    /// error.
+    ///
+    /// See [`OsuBuilder::with_authorization`](crate::OsuBuilder::with_authorization).
+    #[inline]
+    pub const fn create_channel(&self, target_id: u32) -> CreateChannel<'_> {
+        CreateChannel::new(self, target_id)
+    }
+
+    /// Create a new PM conversation.
+    ///
+    /// This is the equivalent of `/msg` on IRC and in-game. This returns a
+    /// [`NewConversation`](crate::model::chat::NewConversation), which includes
+    /// the created [`ChatChannel`](crate::model::chat::ChatChannel) and
+    /// the sent [`ChatMessage`](crate::model::chat::ChatMessage).
+    ///
+    /// To create a PM without sending a message, use
+    /// [`create_channel`](Self::create_channel).
+    ///
+    /// Note that the client has to be initialized with the
+    /// [`ChatWrite`](crate::prelude::Scopes::ChatWrite) scope through the OAuth
+    /// process in order for this endpoint to not return an error.
+    ///
+    /// See [`OsuBuilder::with_authorization`](crate::OsuBuilder::with_authorization).
+    #[inline]
+    pub fn create_conversation(
+        &self,
+        target_id: u32,
+        message: impl Into<String>,
+    ) -> CreateNewConversation<'_> {
+        CreateNewConversation::new(self, target_id, message)
+    }
+
     /// Get a vec of [`Event`](crate::model::event::Event).
     #[inline]
     pub const fn events(&self) -> GetEvents<'_> {
@@ -260,6 +388,22 @@ impl Osu {
     #[inline]
     pub const fn friends(&self) -> GetFriends<'_> {
         GetFriends::new(self)
+    }
+
+    /// Reset the chat activity timeout.
+    ///
+    /// Send this request periodically to reset the chat activity timeout. This
+    /// also returns a [`Vec`] of recent
+    /// [`UserSilence`](crate::model::chat::UserSilence)s.
+    ///
+    /// Note that the client has to be initialized with the
+    /// [`ChatRead`](crate::prelude::Scopes::ChatRead) scope through the OAuth
+    /// process in order for this endpoint to not return an error.
+    ///
+    /// See [`OsuBuilder::with_authorization`](crate::OsuBuilder::with_authorization).
+    #[inline]
+    pub const fn keepalive_chat(&self) -> KeepaliveChat<'_> {
+        KeepaliveChat::new(self)
     }
 
     /// Get the kudosu history of a user in form of a vec of
@@ -359,6 +503,19 @@ impl Osu {
     #[inline]
     pub const fn seasonal_backgrounds(&self) -> GetSeasonalBackgrounds<'_> {
         GetSeasonalBackgrounds::new(self)
+    }
+
+    /// Send a [`ChatMessage`](crate::model::chat::ChatMessage) to a specific
+    /// channel and return it.
+    ///
+    /// Note that the client has to be initialized with the
+    /// [`ChatWrite`](crate::prelude::Scopes::ChatWrite) scope through the OAuth
+    /// process in order for this endpoint to not return an error.
+    ///
+    /// See [`OsuBuilder::with_authorization`](crate::OsuBuilder::with_authorization).
+    #[inline]
+    pub fn send_message(&self, channel_id: u64, message: impl Into<String>) -> SendMessage<'_> {
+        SendMessage::new(self, channel_id, message)
     }
 
     /// Get the vec of [`Spotlight`](crate::model::ranking::Spotlight).

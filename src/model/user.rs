@@ -1,3 +1,8 @@
+use crate::{
+    request::{CreateChannel, CreateNewConversation},
+    Osu,
+};
+
 use super::{serde_util, CacheUserFn, ContainedUsers, GameMode};
 
 use serde::{
@@ -506,6 +511,24 @@ impl ContainedUsers for UserExtended {
     }
 }
 
+impl UserExtended {
+    /// Send a private message to this user.
+    #[inline]
+    pub fn create_conversation<'o>(
+        &self,
+        osu: &'o Osu,
+        message: impl Into<String>,
+    ) -> CreateNewConversation<'o> {
+        osu.create_conversation(self.user_id, message)
+    }
+
+    /// Create the PM channel to this user.
+    #[inline]
+    pub const fn create_channel<'o>(&self, osu: &'o Osu) -> CreateChannel<'o> {
+        osu.create_channel(self.user_id)
+    }
+}
+
 /// Mainly used for embedding in certain responses to save additional api lookups.
 #[derive(Clone, Debug, Deserialize, PartialEq)]
 #[cfg_attr(feature = "serialize", derive(serde::Serialize))]
@@ -666,6 +689,24 @@ pub struct User {
     pub pending_mapset_count: Option<u32>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub team: Option<Team>,
+}
+
+impl User {
+    /// Send a private message to this user.
+    #[inline]
+    pub fn create_conversation<'o>(
+        &self,
+        osu: &'o Osu,
+        message: impl Into<String>,
+    ) -> CreateNewConversation<'o> {
+        osu.create_conversation(self.user_id, message)
+    }
+
+    /// Create the PM channel to this user.
+    #[inline]
+    pub const fn create_channel<'o>(&self, osu: &'o Osu) -> CreateChannel<'o> {
+        osu.create_channel(self.user_id)
+    }
 }
 
 impl ContainedUsers for User {

@@ -9,6 +9,8 @@ use time::OffsetDateTime;
 use crate::{
     error::{OsuError, ParsingError},
     model::{user::User, CacheUserFn, ContainedUsers},
+    request::{GetChannelMessages, JoinChannel, LeaveChannel, MarkChannelAsRead, SendMessage},
+    Osu,
 };
 
 use super::serde_util;
@@ -255,6 +257,38 @@ pub struct ChatChannel {
     /// for [`Public`](ChannelType::Public) channels)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub users: Vec<u32>,
+}
+
+impl ChatChannel {
+    /// Join this channel.
+    #[inline]
+    pub const fn join<'o>(&self, osu: &'o Osu, user_id: u32) -> JoinChannel<'o> {
+        osu.channel_join(self.id, user_id)
+    }
+
+    /// Leave this channel.
+    #[inline]
+    pub const fn leave<'o>(&self, osu: &'o Osu, user_id: u32) -> LeaveChannel<'o> {
+        osu.channel_leave(self.id, user_id)
+    }
+
+    /// Mark this channel as read up to the given `message_id`.
+    #[inline]
+    pub const fn mark_as_read<'o>(&self, osu: &'o Osu, message_id: u64) -> MarkChannelAsRead<'o> {
+        osu.channel_mark_as_read(self.id, message_id)
+    }
+
+    /// Get a list of messages sent in this channel.
+    #[inline]
+    pub const fn messages<'o>(&self, osu: &'o Osu) -> GetChannelMessages<'o> {
+        osu.channel_messages(self.id)
+    }
+
+    /// Send a message to this channel
+    #[inline]
+    pub fn send_message<'o>(&self, osu: &'o Osu, message: impl Into<String>) -> SendMessage<'o> {
+        osu.send_message(self.id, message)
+    }
 }
 
 impl ContainedUsers for ChatChannel {
