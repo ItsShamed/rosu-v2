@@ -35,6 +35,31 @@ pub(crate) enum Route {
         build: String,
     },
     GetChangelogListing,
+    PostChatAck,
+    PostChatNew,
+    GetChannelMessages {
+        channel_id: u64,
+    },
+    PostChannelMessages {
+        channel_id: u64,
+    },
+    PutChannelUser {
+        channel_id: u64,
+        user_id: u32,
+    },
+    DeleteChannelUser {
+        channel_id: u64,
+        user_id: u32,
+    },
+    PutChannelMarkAsRead {
+        channel_id: u64,
+        message_id: u64,
+    },
+    GetChannels,
+    PostChannel,
+    GetChannel {
+        channel_id: u64,
+    },
     GetComments,
     GetEvents,
     GetForumPosts {
@@ -121,6 +146,42 @@ impl Route {
                 (Method::Get, format!("changelog/{stream}/{build}").into())
             }
             Self::GetChangelogListing => (Method::Get, "changelog".into()),
+            Self::PostChatAck => (Method::Post, "chat/ack".into()),
+            Self::PostChatNew => (Method::Post, "chat/new".into()),
+            Self::GetChannelMessages { channel_id } => (
+                Method::Get,
+                format!("chat/channels/{channel_id}/messages").into(),
+            ),
+            Self::PostChannelMessages { channel_id } => (
+                Method::Post,
+                format!("chat/channels/{channel_id}/messages").into(),
+            ),
+            Self::PutChannelUser {
+                channel_id,
+                user_id: user_name,
+            } => (
+                Method::Put,
+                format!("chat/chennels/{channel_id}/users/{user_name}").into(),
+            ),
+            Self::DeleteChannelUser {
+                channel_id,
+                user_id,
+            } => (
+                Method::Delete,
+                format!("chat/chennels/{channel_id}/users/{user_id}").into(),
+            ),
+            Self::PutChannelMarkAsRead {
+                channel_id,
+                message_id,
+            } => (
+                Method::Put,
+                format!("chat/channels/{channel_id}/messages/{message_id}").into(),
+            ),
+            Self::GetChannels => (Method::Get, "chat/channels".into()),
+            Self::PostChannel => (Method::Post, "chat/channels".into()),
+            Self::GetChannel { channel_id } => {
+                (Method::Get, format!("chat/channels/{channel_id}").into())
+            }
             Self::GetComments => (Method::Get, "comments".into()),
             Self::GetEvents => (Method::Get, "events".into()),
             Self::GetForumPosts { topic_id } => {
@@ -227,6 +288,13 @@ impl Route {
             Self::GetBeatmapsetSearch => "GetBeatmapsetSearch",
             Self::GetChangelogBuild { .. } => "GetChangelogBuild",
             Self::GetChangelogListing => "GetChangelogListing",
+            Self::PostChatAck => "PostChatAck",
+            Self::PostChatNew => "PostChatNew",
+            Self::GetChannelMessages { .. } => "GetChannelMessages",
+            Self::PostChannelMessages { .. } => "PostChannelMessages",
+            Self::PutChannelUser { .. } => "PutChannelUser",
+            Self::DeleteChannelUser { .. } => "DeleteChannelUser",
+            Self::PutChannelMarkAsRead { .. } => "PutChannelMarkAsRead",
             Self::GetComments => "GetComments",
             Self::GetEvents => "GetEvents",
             Self::GetForumPosts { .. } => "GetForumPosts",

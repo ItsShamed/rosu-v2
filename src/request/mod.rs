@@ -162,6 +162,8 @@ mod wiki;
 pub(crate) enum Method {
     Get,
     Post,
+    Put,
+    Delete,
 }
 
 impl Method {
@@ -169,6 +171,8 @@ impl Method {
         match self {
             Method::Get => hyper::Method::GET,
             Method::Post => hyper::Method::POST,
+            Method::Put => hyper::Method::PUT,
+            Method::Delete => hyper::Method::DELETE,
         }
     }
 }
